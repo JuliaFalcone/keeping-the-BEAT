@@ -17,5 +17,5 @@ Contents
 --------
 .. toctree::
   installation
-   customizing_your_fits
+  customizing_your_fits
    references
