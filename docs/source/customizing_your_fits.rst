@@ -40,8 +40,47 @@ target_param
        
 
 [a] The units for the minwidth and maxwidth paramters are in sigma (will need to change this)
-    
+
 
 cont_instructions
 ------------
-In BEAT, we measure the height of the emission lines against a continuum region. We manually define the continuum by choosing two regions slightly above and below the lines we wish to observe. In the example fits on the previous page, the continuum regions are shown as gray shaded regions on either side of the fitted lines, and are intended to be areas of low emission. The continuum fit, which is marked on the output plots as a dark  
+In BEAT, we measure the height of the emission lines against a continuum region. We manually define the continuum by choosing two regions slightly above and below the lines we wish to observe. In the example fits on the previous page, the continuum regions are shown as gray shaded regions on either side of the fitted lines, and are intended to be areas of low emission. The continuum fit, which is marked on the output plots as a dark green line, is calculated with a slope that best connects the average fluxes of the two regions.
+
+.. list-table:: 
+   :header-rows: 1
+   :class: tight-table
+
+   * - Parameter name
+     - Description
+   * - ``form``
+     - The type of input continuum. Currently only "model" is supported, but we hope to add support for data in the future.
+   * - ``cont_poly``
+     - Degree of polynomial fit to continuum
+   * - ``continuum1``
+     - The wavelength range, in units of Angstroms, for the first flux bin sampled to derive the continuum. Usually to one side (the left) of your measured feature(s).
+   * - ``continuum2``
+     - The wavelength range , in units of Angstroms, for the second flux bin sampled to derive the continuum. Usually to one side (the right) of your measured feature(s).
+
+
+fit_instructions
+------------
+This section defines the narrow-line components that you wish to fit. You can add or take away the number of lines, but in general BEAT's runtime is most reasonable with 5 lines or fewer. The narrow lines that you define will be fit with up to the number of components designated in ``maxcomp``.
+
+.. list-table:: 
+   :header-rows: 1
+   :class: tight-table
+
+   * - Parameter name
+     - Description
+   * - ``name``
+     - The name of the emission line, which is used in the output files.
+   * - ``wave``
+     - The rest wavelength of the emission line.
+   * - ``minwave``
+     - The minimum redshift-corrected centroid wavelength allowed when fitting Gaussians. For example, if you are fitting a high-redshift target, you would expect ``minwave`` to be significantly higher than the rest wavelength. 
+   * - ``flux_free``
+     - This is a logic switch on whether the flux of an emission line is reliant on another line. For example, [N II] at λ6548 A (``line2``) is in a doublet with [N II] λ6583 A (``line3``). Therefore, ``flux_free`` for ``line3`` would be ``False``, but for ``line2`` the ``flux_free`` would be ``True`` because it needs the freedom to fit the data, and ``line3`` would then be scaled according to the ``flux_ratio``.   
+   * - ``locked_with``
+     - If ``flux_free`` is ``False``, this parameter names the emission line that it's linked to. In this example, [N II] λ6583 A (``line3``) is locked with [N II] at λ6548 A (``line2``).
+   * - ``flux_ratio``
+     - This value specifies the fractional difference in flux between the doublet. For example, N [II] λ6583 A has a flux 3 times greater than that of [N II] at λ6548 A, so the ``flux_ratio`` for ``line3`` (which corresponds to [N II] at λ6548 A) is 3.
