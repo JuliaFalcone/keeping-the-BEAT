@@ -10,7 +10,6 @@ target_param
 ------------
 
 .. list-table:: 
-   :widths: 30 70 
    :header-rows: 1
    :class: tight-table
 
