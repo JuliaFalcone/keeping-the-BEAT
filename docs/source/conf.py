@@ -36,4 +36,4 @@ epub_show_urls = 'footnote'
 
 def setup(app):
 
-   app.add_stylesheet('../build/html/_static/css/custom.css')
+   app.add_css_file('../build/html/_static/css/custom.css')
