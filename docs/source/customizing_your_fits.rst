@@ -39,7 +39,6 @@ target_param
 
 
 .. list-table:: 
-   :widths: 30 70 
    :header-rows: 1
    :class: tight-table
 
@@ -51,40 +50,6 @@ target_param
      - Redshift of your target
    * - minwidth
      - The minimum Gaussian sigma value to be fit to features. See [a] below for more details on units.
-
-.. list-table:: Comparison
-:widths: 20 10 10 15 20 
-:header-rows: 1   
-
-   * - Platform
-
-     - Self-Contained?
-
-     - Cost
-
-     - Flexibility
-
-     - Description
-
-   * - Raspberry Pi
-
-     - No
-
-     - $30 
-
-     - Limitless
-
-     - Mini computer board with GPIO pins for interfacing and experimentation.
-
-   * - Lego Mindstorms
-
-     - Yes
-
-     - $350
-
-     - Medium
-
-     - Lego robotics sytem with motors and sensors.  Build a robot, then write logic to move it around and do stuff.
 
 
 cont_instructions
