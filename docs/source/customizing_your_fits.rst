@@ -9,48 +9,39 @@ In the ``main()`` function, there are three subsections of parameters: ``target_
 target_param
 ------------
 
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Parameter name | Description                                                                                                                                                                                                                                                                                                                                                                                                                          |
-+================+======================================================================================================================================================================================================================================================================================================================================================================================================================================+
-| ``name``       | Name of your target (in string format)                                                                                                                                                                                                                                                                                                                                                                                               |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``red``        | Redshift of your target                                                                                                                                                                                                                                                                                                                                                                                                              |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``minwidth``   | The minimum Gaussian sigma value to be fit to features. This value should be set as the minimum resolvable width of an emission line in your spectrum. See [a] below for more details on units.                                                                                                                                                                                                                                      |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``maxwidth``   | The minimum Gaussian sigma value to be fit to features. This value should be set to the maximum width expected in the spectra. Emission-line gas in the example spectra likely does not exceed FWHM = 2000 km/s, so we will use that to define the maximum width. See [a] below for more details on units.                                                                                                                           |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``start``      | Minimum array value used in input spectrum                                                                                                                                                                                                                                                                                                                                                                                           |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``fluxsigma``  | Minimum S/N value. The flux height must be greater than this value multiplied by the standard deviation to be considered a legitimate fit. This value is typically 3.                                                                                                                                                                                                                                                                |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``plotmin``    | The x-axis minimum wavelength in output plots, in units of Angstroms                                                                                                                                                                                                                                                                                                                                                                 |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``plotmax``    | The x-axis maximum wavelength in output plots, in units of Angstroms                                                                                                                                                                                                                                                                                                                                                                 |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``maxcomp``    | The maximum number of Gaussian components that can be attempted per line. This is often 3, and can go as high as 5 or 6 (but will run very slowly). However, BEAT will stop fitting when a more complex model is less likely than a simpler model (e.g. when using 2 components is a less likely fit than 1 component). Thus, even if we set a maxcomp value of 6, the routine will likely only fit up to 3 components per spectrum. |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``lnz``        | Minimum acceptable logarithm of the ratio of Bayesian evidences. This should usually be 5. See `Feroz et al. 2011 <https://academic.oup.com/mnras/article/415/4/3462/1748699>`_ and Section 3.1 of `Falcone et al. 2024 <https://ui.adsabs.harvard.edu/abs/2024ApJ...971...17F/abstract/>`_ for more information on ln(z).                                                                                                           |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``cores``      | Number of processors that are free to be assigned to multiprocessing pool. Currently, personal laptops usually have 4 processors, so try changing cores to 2 and note the difference in time it takes to finish fitting the spectra. Always allow one free processor to continue using your computer!                                                                                                                                |
-+----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-[a] The units for the minwidth and maxwidth paramters are in sigma (will need to change this)
-
-
 .. list-table:: 
+   :widths: 30 70 
    :header-rows: 1
    :class: tight-table
 
    * - Parameter name
      - Description
-   * - name
+   * - ``name``
      - Name of your target (in string format)
-   * - red
+   * - ``red``
      - Redshift of your target
-   * - minwidth
+   * - ``minwidth``
      - The minimum Gaussian sigma value to be fit to features. See [a] below for more details on units.
+   * - ``maxwidth``
+     - The minimum Gaussian sigma value to be fit to features. This value should be set to the maximum width expected in the spectra. Emission-line gas in the example spectra likely does not exceed FWHM = 2000 km/s, so we will use that to define the maximum width. See [a] below for more details on units.
+   * - ``start``
+     - Minimum array value used in input spectrum
+   * - ``fluxsigma``
+     - Minimum S/N value. The flux height must be greater than this value multiplied by the standard deviation to be considered a legitimate fit. This value is typically 3. 
+   * - ``plotmin``
+     - The x-axis minimum wavelength in output plots, in units of Angstroms
+   * - ``plotmax``
+     - The x-axis maximum wavelength in output plots, in units of Angstroms
+   * - ``maxcomp``
+     - The maximum number of Gaussian components that can be attempted per line. This is often 3, and can go as high as 5 or 6 (but will run very slowly). However, BEAT will stop fitting when a more complex model is less likely than a simpler model (e.g. when using 2 components is a less likely fit than 1 component). Thus, even if we set a maxcomp value of 6, the routine will likely only fit up to 3 components per spectrum.
+   * - ``lnz``
+     - Minimum acceptable logarithm of the ratio of Bayesian evidences. This should usually be 5. See Feroz et al. 2011 and Section 3.1 of Falcone et al. 2024 for more information on ln(z). 
+   * - ``cores``
+     - Number of processors that are free to be assigned to multiprocessing pool. Currently, personal laptops usually have 4 processors, so try changing cores to 2 and note the difference in time it takes to finish fitting the spectra. Always allow one free processor to continue using your computer!   
+       
 
+[a] The units for the minwidth and maxwidth paramters are in sigma (will need to change this)
+    
 
 cont_instructions
 ------------
