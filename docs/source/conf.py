@@ -2,12 +2,12 @@
 
 # -- Project information
 
-project = 'Lumache'
-copyright = '2021, Graziella'
-author = 'Graziella'
+project = 'Bayesian Evidence Analysis Tool (BEAT)'
+copyright = '2021, Dzhuliya Dashtamirova'
+author = 'Dzhuliya Dashtamirova'
 
-release = '0.1'
-version = '0.1.0'
+release = ''
+version = ''
 
 # -- General configuration
 
@@ -41,3 +41,4 @@ html_static_path = ['../build/html/_static']
 html_css_files = [
     'css/custom.css',
 ]
+
