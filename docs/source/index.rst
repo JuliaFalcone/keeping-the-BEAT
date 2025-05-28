@@ -8,6 +8,8 @@ The Bayesian Evidence Analysis Tool (BEAT) is a Python-based code for measuring 
 In-depth descriptions of BEAT can be found in the following papers: `Fischer et al. 2017 <https://ui.adsabs.harvard.edu/abs/2017ApJ...834...30F/abstract>`_ (see the Appendix), `Falcone et al. 2024 <https://ui.adsabs.harvard.edu/abs/2024ApJ...971...17F/abstract/>`_   (see Section 3).
 
 
+**Please note that the documentation is being written over the spring/summer of 2025. We apologize for any inconvenience!**
+
 
 .. image:: ../build/html/_images/beat-img.png
   :width: 700

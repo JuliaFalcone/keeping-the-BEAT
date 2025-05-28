@@ -4,10 +4,22 @@ Customizing your fits
 
 At this point, you should be able to run the example BEAT code in a way that produces an output folder with plots, as shown on the previous page. However, there are a lot of parameters that we see in the code! This page will define these parameters, and you can observe how the example fits change depending on any adjustments to the parameters.
 
+
+Reading in Data
+------------
+
+Currently, BEAT uses the ``load_file`` function to read in data via individual text files for each spectrum that commonly take the ``.csv`` or ``.tsv`` format, although you're free to choose any text delimiter. Each text file must have a wavelength and flux array, with the wavelength units typically in Angstroms. You can either load in a noise array with the function, or calculate a noise array within the function.
+
+As you will read below, BEAT runs on all the spectra within a designated directory, so it is suggested that all spectra in a directory be the same file format so they can be easily read in succession. We hope to introduce compatability with data cubes in the future, so that extraction of individual spectra is not needed.
+
+Adjusting Parameters
+------------
+
 In the ``main()`` function, there are three subsections of parameters: ``target_param``, ``cont_instructions``, and ``fit_instructions``. 
 
+
 target_param
-------------
+^^^^^
 
 .. list-table:: 
    :header-rows: 1
@@ -43,7 +55,8 @@ target_param
 
 
 cont_instructions
-------------
+^^^^^
+
 In BEAT, we measure the height of the emission lines against a continuum region. We manually define the continuum by choosing two regions slightly above and below the lines we wish to observe. In the example fits on the previous page, the continuum regions are shown as gray shaded regions on either side of the fitted lines, and are intended to be areas of low emission. The continuum fit, which is marked on the output plots as a dark green line, is calculated with a slope that best connects the average fluxes of the two regions.
 
 .. list-table:: 
@@ -63,7 +76,8 @@ In BEAT, we measure the height of the emission lines against a continuum region.
 
 
 fit_instructions
-------------
+^^^^^
+
 This section defines the narrow-line components that you wish to fit. You can add or take away the number of lines, but in general BEAT's runtime is most reasonable with 5 lines or fewer. The narrow lines that you define will be fit with up to the number of components designated in ``maxcomp``.
 
 .. list-table:: 
@@ -79,8 +93,37 @@ This section defines the narrow-line components that you wish to fit. You can ad
    * - ``minwave``
      - The minimum redshift-corrected centroid wavelength allowed when fitting Gaussians. For example, if you are fitting a high-redshift target, you would expect ``minwave`` to be significantly higher than the rest wavelength. 
    * - ``flux_free``
-     - This is a logic switch on whether the flux of an emission line is reliant on another line. For example, [N II] at λ6548 A (``line2``) is in a doublet with [N II] λ6583 A (``line3``). Therefore, ``flux_free`` for ``line3`` would be ``False``, but for ``line2`` the ``flux_free`` would be ``True`` because it needs the freedom to fit the data, and ``line3`` would then be scaled according to the ``flux_ratio``.   
+     - This is a logic switch on whether the flux of an emission line is reliant on another line. For example, [N II] at λ6548 A (line2) is in a doublet with [N II] λ6583 A (line3). Therefore, ``flux_free`` for line3 would be False, but for line2 the ``flux_free`` would be True because it needs the freedom to fit the data, and line3 would then be scaled according to the ``flux_ratio``.   
    * - ``locked_with``
-     - If ``flux_free`` is ``False``, this parameter names the emission line that it's linked to. In this example, [N II] λ6583 A (``line3``) is locked with [N II] at λ6548 A (``line2``).
+     - If ``flux_free`` is ``False``, this parameter names the emission line that it's linked to. In this example, [N II] λ6583 A (line3) is locked with [N II] at λ6548 A (line2).
    * - ``flux_ratio``
      - This value specifies the fractional difference in flux between the doublet. For example, N [II] λ6583 A has a flux 3 times greater than that of [N II] at λ6548 A, so the ``flux_ratio`` for ``line3`` (which corresponds to [N II] at λ6548 A) is 3.
+       
+
+Incorporating a Broad Line Fit
+------------
+
+Parameters at the Bottom of the Code Block
+------------
+At the bottom of the main block of code for where the parameters are edited, there is a section that reads:
+
+.. code-block:: python 
+
+
+   fit = beat.Fit(out_dir='', 
+                  spec_dir='NLR spectrum',
+                  load_file=load_file,
+                  target_param=target_param,
+                  cont_instructions=cont_instructions,
+                  fit_instructions=fit_instructions,
+                  prefit_instructions=prefit_instructions #Note: this line is only present in broad-line fits.
+                  )
+   fit.mp_handler()
+
+The parameters ``load_file``, ``target_param``, ``cont_instructions``, and ``fit_instructions`` can remain with those inputs. The ``prefit_instructions`` parameter is only present when we are considering broad line components; if we are only fitting narrow components, we can remove that line of code.
+
+``out_dir`` defines the directory where the results folder will be output. Its current input, ``''``, means that it will be placed in the current working directory.
+
+``spec_dir`` points to the directory holding the spectra that you wish to fit. To read more about how to input these spectra, please refer to the `Reading in Data`_ section above. 
+
+
