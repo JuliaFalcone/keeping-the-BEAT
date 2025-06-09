@@ -20,4 +20,5 @@ Contents
 .. toctree::
   installation
   customizing_your_fits
+  interpreting_output
    references
