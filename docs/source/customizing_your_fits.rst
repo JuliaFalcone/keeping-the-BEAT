@@ -5,14 +5,14 @@ Customizing your fits
 At this point, you should be able to run the example BEAT code in a way that produces an output folder with plots, as shown on the previous page. However, there are a lot of parameters that we see in the code! This page will define these parameters, and you can observe how the example fits change depending on any adjustments to the parameters.
 
 
-Reading in Data
+Reading in data
 ------------
 
 Currently, BEAT uses the ``load_file`` function to read in data via individual text files for each spectrum that commonly take the ``.csv`` or ``.tsv`` format, although you're free to choose any text delimiter. Each text file must have a wavelength and flux array, with the wavelength units typically in Angstroms. You can either load in a noise array with the function, or calculate a noise array within the function.
 
 As you will read below, BEAT runs on all the spectra within a designated directory, so it is suggested that all spectra in a directory be the same file format so they can be easily read in succession. We hope to introduce compatability with data cubes in the future, so that extraction of individual spectra is not needed.
 
-Adjusting Parameters
+Adjusting parameters
 ------------
 
 In the ``main()`` function, there are three subsections of parameters: ``target_param``, ``cont_instructions``, and ``fit_instructions``. 
@@ -100,10 +100,58 @@ This section defines the narrow-line components that you wish to fit. You can ad
      - This value specifies the fractional difference in flux between the doublet. For example, N [II] λ6583 A has a flux 3 times greater than that of [N II] at λ6548 A, so the ``flux_ratio`` for ``line3`` (which corresponds to [N II] at λ6548 A) is 3.
        
 
-Incorporating a Broad Line Fit
+Incorporating a broad line fit
 ------------
+Targets such as Seyfert 1 galaxies possess both broad and narrow lines. However, whereas narrow line components are relatively free to scale in various ways depending on the data and the number of narrow line components may change from one position to the next, the number of broad line components and the fluxes of the broad line components relative to each other are fixed. In order to fit both broad and narrow lines as accurately as possible, we use an iterative procedure.
 
-Parameters at the Bottom of the Code Block
+.. tip::
+Why don't we choose to fit broad and narrow lines simultaneously, essentially repeating our process for the NLR fit but leaving space for more lines to be fit? In our experience, when we fit them both together, BEAT may opt for fits that may improve the quality of the NLR fit while worsening the quality of the BLR fit. An example can be seen in the images below. Notice how the broad wings are fit better for the 3-component fit on the left than they are for the 4-component fit on the right, but because the narrow fits are improved from the left to the right, the 4-component fit is deemed better. By fitting the broad and narrow lines separately, we can ensure the best fits for both. 
+
+.. image:: ../build/html/_images/beat-broadandnarrow.png
+  :width: 700
+  :alt: figure of emission line fit
+
+Step 1: Fitting only the broad lines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In our first example fit which had only narrow lines in its spectrum, we allowed BEAT to fit lines of any width up to a ``maxwidth`` of 5 (corresponding to ~230 km/s). Because the narrow lines are fairly well constrained in their widths, as long as the ``maxwidth`` is above the values of the widths, the fit will also be well constrined.
+
+However, the ``maxwidth`` value has more significance when we introduce a spectrum with broad and narrow lines. The first part of this process will involve only fitting the broad line(s). It will be done once to a single spectrum in your data set, and then those resulting Gaussians will be applied to the rest of the spectra when fitting the narrow lines. 
+
+The first step is to run BEAT on your spectrum, where the ``minwidth`` is now 15 and the ``maxwidth`` can be a significantly value like 50. It will likely produce a three-component fit with similar parameters as shown below:
+
+.. image:: ../build/html/_images/broadfit_step1.jpg
+  :width: 700
+  :alt: figure of emission line fit
+
+
+.. list-table:: 
+   :header-rows: 1
+
+   * - Line color
+     - Wavelength centroid
+     - Width
+     - Flux
+   * - Blue/teal
+     - 6629
+     - 50
+     - 2.42E-14
+   * - Pink
+     - 6570
+     - 34.1
+     - 9.80E-14
+   * - Orange
+     - 6582
+     - 15
+     - 8.92E-14
+
+In the above image, the blue curve is clearly trying to fit the narrow components. Therefore, we determine that our first estimate of the broad components are the orange and pink fits, whose parameters are shown in the table above. To understand how we extracted the parameters for the table, please look at the :ref:`my-reference-label` page.
+
+Step 2: Fitting the spectrum with new broad parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this step, will be fitting narrow lines to our spectrum using the broad components that we just found in Step 1. We copy the parameters from the pink and orange curves into ``prefit_instructions``, calculating the flux ratio from the fluxes. Now, we reset the BEAT minwidth and maxwidth parameters
+
+Parameters at the bottom of the code block
 ------------
 At the bottom of the main block of code for where the parameters are edited, there is a section that reads:
 
@@ -124,6 +172,6 @@ The parameters ``load_file``, ``target_param``, ``cont_instructions``, and ``fit
 
 ``out_dir`` defines the directory where the results folder will be output. Its current input, ``''``, means that it will be placed in the current working directory.
 
-``spec_dir`` points to the directory holding the spectra that you wish to fit. To read more about how to input these spectra, please refer to the `Reading in Data`_ section above. 
+``spec_dir`` points to the directory holding the spectra that you wish to fit. To read more about how to input these spectra, please refer to the `Reading in data`_ section above. 
 
 
