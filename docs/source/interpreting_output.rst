@@ -1,8 +1,9 @@
+.. _my-reference-label:
+
 Interpreting the output
 ==========================
+*Contributors: Julia Falcone*
 
-Reading the Output File
------------------------
 
 When BEAT has finished succesfully running, there will be files in the output folder in the location specified by the ``out_dir`` directory. This section will explain how you can interpret the output to extract the fit results, and use those results to create plots of the kinematics.
 
@@ -43,5 +44,4 @@ Notice also how the columns for **wave_2**, **width_2**, **flux_2_A**, and **flu
 
 Additionally, there are a number of columns named **wave_1_sigma**, **width_1_sigma**, **flux_1_A_sigma**, etc. The columns with "sigma" in the name are the errors for the corresponding parameters.
 
-Plotting the Kinematics
------------------------
+

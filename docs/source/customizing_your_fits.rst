@@ -46,7 +46,7 @@ target_param
    * - ``maxcomp``
      - The maximum number of Gaussian components that can be attempted per line. This is often 3, and can go as high as 5 or 6 (but will run very slowly). However, BEAT will stop fitting when a more complex model is less likely than a simpler model (e.g. when using 2 components is a less likely fit than 1 component). Thus, even if we set a maxcomp value of 6, the routine will likely only fit up to 3 components per spectrum.
    * - ``lnz``
-     - Minimum acceptable logarithm of the ratio of Bayesian evidences. This should usually be 5. See Feroz et al. 2011 and Section 3.1 of Falcone et al. 2024 for more information on ln(z). 
+     - Minimum acceptable logarithm of the ratio of Bayesian evidences. This should usually be 5. See `Feroz et al. 2011 <https://ui.adsabs.harvard.edu/abs/2011MNRAS.415.3462F/abstract>`_ and Section 3.1 of `Falcone et al. 2024 <https://ui.adsabs.harvard.edu/abs/2024ApJ...971...17F/abstract/>`_ for more information on ln(z). 
    * - ``cores``
      - Number of processors that are free to be assigned to multiprocessing pool. Currently, personal laptops usually have 4 processors, so try changing cores to 2 and note the difference in time it takes to finish fitting the spectra. Always allow one free processor to continue using your computer!   
        
@@ -105,7 +105,8 @@ Incorporating a broad line fit
 Targets such as Seyfert 1 galaxies possess both broad and narrow lines. However, whereas narrow line components are relatively free to scale in various ways depending on the data and the number of narrow line components may change from one position to the next, the number of broad line components and the fluxes of the broad line components relative to each other are fixed. In order to fit both broad and narrow lines as accurately as possible, we use an iterative procedure.
 
 .. tip::
-Why don't we choose to fit broad and narrow lines simultaneously, essentially repeating our process for the NLR fit but leaving space for more lines to be fit? In our experience, when we fit them both together, BEAT may opt for fits that may improve the quality of the NLR fit while worsening the quality of the BLR fit. An example can be seen in the images below. Notice how the broad wings are fit better for the 3-component fit on the left than they are for the 4-component fit on the right, but because the narrow fits are improved from the left to the right, the 4-component fit is deemed better. By fitting the broad and narrow lines separately, we can ensure the best fits for both. 
+Why don't we choose to fit broad and narrow lines simultaneously, essentially repeating our process for the NLR fit but leaving space for more lines to be fit? This can be done, but it is computationally expensive and not recommended unless you have access to computing clusters or similar resources. [will put in more]
+.. In our experience, when we fit them both together, BEAT may opt for fits that may improve the quality of the NLR fit while worsening the quality of the BLR fit. An example can be seen in the images below. Notice how the broad wings are fit better for the 3-component fit on the left than they are for the 4-component fit on the right, but because the narrow fits are improved from the left to the right, the 4-component fit is deemed better. By fitting the broad and narrow lines separately, we can ensure the best fits for both. 
 
 .. image:: ../build/html/_images/beat-broadandnarrow.png
   :width: 700
@@ -149,7 +150,37 @@ In the above image, the blue curve is clearly trying to fit the narrow component
 Step 2: Fitting the spectrum with new broad parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this step, will be fitting narrow lines to our spectrum using the broad components that we just found in Step 1. We copy the parameters from the pink and orange curves into ``prefit_instructions``, calculating the flux ratio from the fluxes. Now, we reset the BEAT minwidth and maxwidth parameters
+In this step, will be fitting narrow lines to our spectrum using the broad components that we just found in Step 1. We copy the parameters from the pink and orange curves into ``prefit_instructions``, calculating the flux ratio from the fluxes, and reset the ``minwidth`` and ``maxwidth`` parameters back to 1 and 5, respectively. 
+
+Notice how, in the ``fit = beat.Fit`` section of the code, there is a new parameter that reads ``save_NLR_removed = True``. This is because once BEAT fits the narrow components to the spectrum, it will then subtract those components from the data, thereby isolating the broad region. The left image below is the final fit from this BEAT run. It's evident that this broad region still needs some improvement, as it looks unusually shifted to the left, but this isn't concerning because the fit will improve with each iteration. On the right is the spectrum in the ``NLR_removed`` directory that is created in the output, which has subtracted the two narrow line components in the left image from the data. The spectrum is pretty jagged, but this can also improve with future iterations.  
+
+.. image:: ../build/html/_images/beat-firstNLRremoved.png
+  :width: 700
+  :alt: figure of emission line fit
+
+
+Step 3: Fitting the NLR-subtracted spectrum
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this round of fitting, we are going to use the same ``maxwidth`` and ``minwidth`` that we used for Step 1. This is because we're fitting the NLR-subtracted spectrum seen in the right-hand image of the last step. If we assume the broad region is isolated with this spectrum, we can limit ourselves to only fiting broad lines. Note that ``spec_dir`` should now point to the ``NLR_removed`` directory that was produced in the previous step. The image below shows the resulting fit to this spectrum.
+
+.. image:: ../build/html/_images/broadonlyfit.png
+  :width: 700
+  :alt: figure of emission line fit
+
+Step 4: Fitting the spectrum with newer broad parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now that I have an improved set of broad parameters, we can put them back into the ``prefit_instructions`` and once again reset our ``minwidth`` and ``maxwidth`` to identify narrow lines (i.e., set them to 1 and 5, respectively).
+
+.. image:: ../build/html/_images/beat-step4.png
+  :width: 700
+  :alt: figure of emission line fit
+
+
+The figure above shows our resulting 3-component fit that accurately models both the broad- and narrow-line region. Steps 3 and 4 could be repeated again, but more iterations does not necessarily result in a better fit. To know whether successive iterations are better fits than previous ones, you should compare the fits' ln(Z) values. For more information about the ln(Z) parameter, see `Feroz et al. 2011 <https://ui.adsabs.harvard.edu/abs/2011MNRAS.415.3462F/abstract>`_ and Section 3.1 of `Falcone et al. 2024 <https://ui.adsabs.harvard.edu/abs/2024ApJ...971...17F/abstract/>`_ 
+
+Once you are satisfied with the quality of this fit, the broad region parameters-- which are to say, the output parameters that you get from Step 3-- can then be implemented into the ``prefit_instructions`` for all fits of this dataset going forward. 
 
 Parameters at the bottom of the code block
 ------------
@@ -164,6 +195,7 @@ At the bottom of the main block of code for where the parameters are edited, the
                   target_param=target_param,
                   cont_instructions=cont_instructions,
                   fit_instructions=fit_instructions,
+                  make_dirs = 'make_new',
                   prefit_instructions=prefit_instructions #Note: this line is only present in broad-line fits.
                   )
    fit.mp_handler()
@@ -173,5 +205,9 @@ The parameters ``load_file``, ``target_param``, ``cont_instructions``, and ``fit
 ``out_dir`` defines the directory where the results folder will be output. Its current input, ``''``, means that it will be placed in the current working directory.
 
 ``spec_dir`` points to the directory holding the spectra that you wish to fit. To read more about how to input these spectra, please refer to the `Reading in data`_ section above. 
+
+``make_dirs`` informs BEAT about how to handle the output directory that is created for each run. There are two options: ``'make_new'``, which creates a new directory counting upwards in the format of "output_1, output_2, output_3, etc."; and ``replace``, which will replace the most recent output directory and not count upwards. If you choose the latter option, the most recent results will be erased for each run of BEAT. 
+
+``save_NLR_removed`` asks whether you want to save an NLR-subtracted spectrum for the purposes of isolating the broad line region as described throughout the `Incorporating a broad line fit`_ section. This is an optional parameter, which is set to ``False`` by default, so it may not appear in runs that do not involve the broad line region.
 
 
