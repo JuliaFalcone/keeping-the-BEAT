@@ -29,7 +29,6 @@ BEAT has been used in numerous peer-reviewed studies. These references include:
 Contents
 --------
 .. toctree::
-  index
   installation
   customizing_your_fits
   fitting_broad

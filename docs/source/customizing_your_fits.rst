@@ -1,7 +1,5 @@
 Customizing your fits
 ==========================
-*Contributors: Julia Falcone,  Dzhuliya Dashtamirova*
-
 At this point, you should be able to run the example BEAT code in a way that produces an output folder with plots, as shown on the previous page. However, there are a lot of parameters that we see in the code! This page will define these parameters, and you can observe how the example fits change depending on any adjustments to the parameters.
 
 
@@ -32,11 +30,9 @@ target_param
    * - ``red``
      - Redshift of your target
    * - ``minwidth``
-     - The minimum Gaussian sigma value to be fit to features. See [a] below for more details on units.
+     - The minimum Gaussian sigma value to be fit to features, in units of Angstroms. See below for more details on units.
    * - ``maxwidth``
-     - The minimum Gaussian sigma value to be fit to features. This value should be set to the maximum width expected in the spectra. Emission-line gas in the example spectra likely does not exceed FWHM = 2000 km/s, so we will use that to define the maximum width. See [a] below for more details on units.
-   * - ``start``
-     - Minimum array value used in input spectrum
+     - The minimum Gaussian sigma value to be fit to features, in units of Angstroms. This value should be set to the maximum width expected in the spectra. Emission-line gas in the example spectra likely does not exceed FWHM = 2000 km/s, so we will use that to define the maximum width. See below for more details on units.
    * - ``fluxsigma``
      - Minimum S/N value. The flux height must be greater than this value multiplied by the standard deviation to be considered a legitimate fit. This value is typically 3. 
    * - ``plotmin``
@@ -51,8 +47,8 @@ target_param
      - Number of processors that are free to be assigned to multiprocessing pool. Currently, personal laptops usually have 4 processors, so try changing cores to 2 and note the difference in time it takes to finish fitting the spectra. Always allow one free processor to continue using your computer!   
        
 
-[a] The units for the minwidth and maxwidth paramters are in sigma (will need to change this)
-
+**On minwidth and maxwidth:**
+ ``minwidth`` and ``maxwidth`` are represented by ⁠σ, which is to say the standard deviation of the Gaussian, and are given in units of Angstroms. We can determine σ using the equation σ = FWHM/2355, where the full width at half maximum (FWHM) represents a line width that can be measured in Angstroms. The ``minwidth`` typically represents the smallest resolution of your instrument in units of Angstroms, which can then be substituted into the equation to calculate the σ value for BEAT.
 
 cont_instructions
 ^^^^^
@@ -100,87 +96,7 @@ This section defines the narrow-line components that you wish to fit. You can ad
      - This value specifies the fractional difference in flux between the doublet. For example, N [II] λ6583 A has a flux 3 times greater than that of [N II] at λ6548 A, so the ``flux_ratio`` for ``line3`` (which corresponds to [N II] at λ6548 A) is 3.
        
 
-Incorporating a broad line fit
-------------
-Targets such as Seyfert 1 galaxies possess both broad and narrow lines. However, whereas narrow line components are relatively free to scale in various ways depending on the data and the number of narrow line components may change from one position to the next, the number of broad line components and the fluxes of the broad line components relative to each other are fixed. In order to fit both broad and narrow lines as accurately as possible, we use an iterative procedure.
 
-.. tip::
-Why don't we choose to fit broad and narrow lines simultaneously, essentially repeating our process for the NLR fit but leaving space for more lines to be fit? This can be done, but it is computationally expensive and not recommended unless you have access to computing clusters or similar resources. [will put in more]
-.. In our experience, when we fit them both together, BEAT may opt for fits that may improve the quality of the NLR fit while worsening the quality of the BLR fit. An example can be seen in the images below. Notice how the broad wings are fit better for the 3-component fit on the left than they are for the 4-component fit on the right, but because the narrow fits are improved from the left to the right, the 4-component fit is deemed better. By fitting the broad and narrow lines separately, we can ensure the best fits for both. 
-
-.. image:: ../build/html/_images/beat-broadandnarrow.png
-  :width: 700
-  :alt: figure of emission line fit
-
-Step 1: Fitting only the broad lines
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In our first example fit which had only narrow lines in its spectrum, we allowed BEAT to fit lines of any width up to a ``maxwidth`` of 5 (corresponding to ~230 km/s). Because the narrow lines are fairly well constrained in their widths, as long as the ``maxwidth`` is above the values of the widths, the fit will also be well constrined.
-
-However, the ``maxwidth`` value has more significance when we introduce a spectrum with broad and narrow lines. The first part of this process will involve only fitting the broad line(s). It will be done once to a single spectrum in your data set, and then those resulting Gaussians will be applied to the rest of the spectra when fitting the narrow lines. 
-
-The first step is to run BEAT on your spectrum, where the ``minwidth`` is now 15 and the ``maxwidth`` can be a significantly value like 50. It will likely produce a three-component fit with similar parameters as shown below:
-
-.. image:: ../build/html/_images/broadfit_step1.jpg
-  :width: 700
-  :alt: figure of emission line fit
-
-
-.. list-table:: 
-   :header-rows: 1
-
-   * - Line color
-     - Wavelength centroid
-     - Width
-     - Flux
-   * - Blue/teal
-     - 6629
-     - 50
-     - 2.42E-14
-   * - Pink
-     - 6570
-     - 34.1
-     - 9.80E-14
-   * - Orange
-     - 6582
-     - 15
-     - 8.92E-14
-
-In the above image, the blue curve is clearly trying to fit the narrow components. Therefore, we determine that our first estimate of the broad components are the orange and pink fits, whose parameters are shown in the table above. To understand how we extracted the parameters for the table, please look at the :ref:`my-reference-label` page.
-
-Step 2: Fitting the spectrum with new broad parameters
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In this step, will be fitting narrow lines to our spectrum using the broad components that we just found in Step 1. We copy the parameters from the pink and orange curves into ``prefit_instructions``, calculating the flux ratio from the fluxes, and reset the ``minwidth`` and ``maxwidth`` parameters back to 1 and 5, respectively. 
-
-Notice how, in the ``fit = beat.Fit`` section of the code, there is a new parameter that reads ``save_NLR_removed = True``. This is because once BEAT fits the narrow components to the spectrum, it will then subtract those components from the data, thereby isolating the broad region. The left image below is the final fit from this BEAT run. It's evident that this broad region still needs some improvement, as it looks unusually shifted to the left, but this isn't concerning because the fit will improve with each iteration. On the right is the spectrum in the ``NLR_removed`` directory that is created in the output, which has subtracted the two narrow line components in the left image from the data. The spectrum is pretty jagged, but this can also improve with future iterations.  
-
-.. image:: ../build/html/_images/beat-firstNLRremoved.png
-  :width: 700
-  :alt: figure of emission line fit
-
-
-Step 3: Fitting the NLR-subtracted spectrum
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In this round of fitting, we are going to use the same ``maxwidth`` and ``minwidth`` that we used for Step 1. This is because we're fitting the NLR-subtracted spectrum seen in the right-hand image of the last step. If we assume the broad region is isolated with this spectrum, we can limit ourselves to only fiting broad lines. Note that ``spec_dir`` should now point to the ``NLR_removed`` directory that was produced in the previous step. The image below shows the resulting fit to this spectrum.
-
-.. image:: ../build/html/_images/broadonlyfit.png
-  :width: 700
-  :alt: figure of emission line fit
-
-Step 4: Fitting the spectrum with newer broad parameters
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Now that I have an improved set of broad parameters, we can put them back into the ``prefit_instructions`` and once again reset our ``minwidth`` and ``maxwidth`` to identify narrow lines (i.e., set them to 1 and 5, respectively).
-
-.. image:: ../build/html/_images/beat-step4.png
-  :width: 700
-  :alt: figure of emission line fit
-
-
-The figure above shows our resulting 3-component fit that accurately models both the broad- and narrow-line region. Steps 3 and 4 could be repeated again, but more iterations does not necessarily result in a better fit. To know whether successive iterations are better fits than previous ones, you should compare the fits' ln(Z) values. For more information about the ln(Z) parameter, see `Feroz et al. 2011 <https://ui.adsabs.harvard.edu/abs/2011MNRAS.415.3462F/abstract>`_ and Section 3.1 of `Falcone et al. 2024 <https://ui.adsabs.harvard.edu/abs/2024ApJ...971...17F/abstract/>`_ 
-
-Once you are satisfied with the quality of this fit, the broad region parameters-- which are to say, the output parameters that you get from Step 3-- can then be implemented into the ``prefit_instructions`` for all fits of this dataset going forward. 
 
 Parameters at the bottom of the code block
 ------------
