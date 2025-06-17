@@ -32,5 +32,6 @@ Contents
   index
   installation
   customizing_your_fits
+  fitting_broad
   interpreting_output
    references
