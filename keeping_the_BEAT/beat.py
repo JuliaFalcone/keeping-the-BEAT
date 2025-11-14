@@ -345,7 +345,7 @@ class Fit(object):
         cat.loc[cat['filename'] == filename, 'ncomps'] = ncomp
 
         #print('filename', cat)
-        cat.to_csv(cat_file, index_label='index', float_format='%.3e')
+        cat.to_csv(cat_file, index_label='index', float_format='%.6e')
 
 
 
